@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "52196131424",
+    "project_id": "tablecheckingapp-13820",
+    "storage_bucket": "tablecheckingapp-13820.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52196131424:android:c257da6a9d7376947f7905",
+        "android_client_info": {
+          "package_name": "com.example.table_checking_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "52196131424-5iqoud41dsv52edslei7r1cni45oqkdf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjg8fH-DT2_zu3_8CZYjR0s3nRwJTSt9A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "52196131424-5iqoud41dsv52edslei7r1cni45oqkdf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "52196131424-6di1ior8bro5luh1d842q7h9firsbl78.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tableCheckingApp"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52196131424:android:b34adf4812a15f457f7905",
+        "android_client_info": {
+          "package_name": "com.example.test_2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "52196131424-5iqoud41dsv52edslei7r1cni45oqkdf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjg8fH-DT2_zu3_8CZYjR0s3nRwJTSt9A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "52196131424-5iqoud41dsv52edslei7r1cni45oqkdf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "52196131424-6di1ior8bro5luh1d842q7h9firsbl78.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tableCheckingApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
