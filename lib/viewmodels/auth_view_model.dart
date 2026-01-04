@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
 import '../services/auth_service.dart';
@@ -45,8 +44,8 @@ class AuthViewModel extends ChangeNotifier {
       } else {
         await _authService.signIn(email: email, password: password);
       }
-    } on FirebaseAuthException catch (e) {
-      error = e.message ?? 'Authentication failed.';
+    } on AuthException catch (e) {
+      error = e.message;
     } catch (e) {
       error = 'Something went wrong: $e';
     } finally {

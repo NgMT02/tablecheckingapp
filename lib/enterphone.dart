@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'auth_screen.dart';
 import 'tableno.dart';
 import 'services/auth_service.dart';
 import 'viewmodels/table_lookup_view_model.dart';
@@ -55,14 +56,22 @@ class _EnterPhoneScreenState extends State<EnterPhoneScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: Navigator.canPop(context) ? const BackButton() : null,
+        leading: BackButton(onPressed: () async {
+          try {
+            await auth.signOut();
+          } catch (_) {}
+          if (!context.mounted) return;
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          } else {
+            Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => const AuthScreen()),
+              (_) => false,
+            );
+          }
+        }),
         title: const Text('Table checker'),
         actions: [
-          IconButton(
-            onPressed: () async => await auth.signOut(),
-            tooltip: 'Sign out',
-            icon: const Icon(Icons.logout_rounded),
-          ),
           PopupMenuButton<String>(
             onSelected: (value) {
               if (value == 'refresh') _controller.clear();
@@ -158,7 +167,7 @@ class _EnterPhoneScreenState extends State<EnterPhoneScreen> {
                                         ),
                                   ),
                                   Text(
-                                    'Signed in as ${auth.currentUser?.email ?? 'unknown'}',
+                                    'Signed in as ${auth.currentEmail ?? 'unknown'}',
                                     style: Theme.of(context)
                                         .textTheme
                                         .bodyMedium
@@ -227,11 +236,7 @@ class _EnterPhoneScreenState extends State<EnterPhoneScreen> {
                                               AlwaysStoppedAnimation(Colors.white),
                                         ),
                                       )
-                                    : const Text('Lookup'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.maybePop(context),
-                                child: const Text('Back'),
+                                  : const Text('Lookup'),
                               ),
                             ],
                           ),

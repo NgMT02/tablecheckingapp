@@ -1,19 +1,14 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'auth_gate.dart';
-import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'services/table_lookup_service.dart';
 import 'viewmodels/table_lookup_view_model.dart' as table_view_model;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
   runApp(const MyApp());
 }
 

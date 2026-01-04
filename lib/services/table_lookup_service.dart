@@ -23,7 +23,7 @@ class TableLookupService {
   TableLookupService({
     http.Client? client,
     required AuthService authService,
-  })  : _client = client ?? http.Client(),
+  })  : _client = client ?? authService.client,
         _authService = authService;
 
   final http.Client _client;
@@ -45,11 +45,6 @@ class TableLookupService {
       throw LookupException('Please sign in before requesting a table.');
     }
 
-    final idToken = await _authService.getIdToken();
-    if (idToken == null) {
-      throw LookupException('Unable to fetch your login token.');
-    }
-
     final payload = {'phoneNumber': trimmed, 'phone': trimmed};
 
     final primaryUri = _serviceBase.replace(path: '/table');
@@ -59,7 +54,6 @@ class TableLookupService {
     try {
       var response = await _post(
         primaryUri,
-        idToken: idToken,
         body: payload,
         label: 'primary /table endpoint',
       );
@@ -70,7 +64,6 @@ class TableLookupService {
         attemptedUri = fallbackUri;
         response = await _post(
           fallbackUri,
-          idToken: idToken,
           body: payload,
           label: 'fallback root endpoint',
         );
@@ -127,19 +120,20 @@ class TableLookupService {
 
   Future<http.Response?> _post(
     Uri uri, {
-    required String idToken,
     required Map<String, String> body,
     required String label,
   }) async {
     try {
+      final headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      headers.addAll(_authService.authHeaders());
+
       final response = await _client
           .post(
             uri,
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $idToken',
-            },
+            headers: headers,
             body: jsonEncode(body),
           )
           .timeout(const Duration(seconds: 10));

@@ -15,7 +15,7 @@ class TableNumberScreen extends StatelessWidget {
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) {
-              if (value == 'back') Navigator.maybePop(context);
+              if (value == 'back') Navigator.of(context).pop();
             },
             itemBuilder: (context) => const [
               PopupMenuItem(value: 'back', child: Text('Back to search')),
@@ -140,7 +140,7 @@ class TableNumberScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 16),
                               ElevatedButton(
-                                onPressed: () => Navigator.maybePop(context),
+                                onPressed: () => Navigator.of(context).pop(),
                                 child: const Text('Back to search'),
                               ),
                             ],
