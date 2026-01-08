@@ -10,9 +10,9 @@ class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   static const Map<String, String> _assetOverrides = {
-    'burger-1': 'assets/menu/cheese burger.jpg',
-    'burger-2': 'assets/menu/chicken burger.jpg',
-    'pizza-1': 'assets/menu/pepperoni pizza.jpg',
+    'burger-1': 'assets/menu/cheese_burger.jpg',
+    'burger-2': 'assets/menu/chicken_burger.jpg',
+    'pizza-1': 'assets/menu/pepperoni_pizza.jpg',
     'drink-1': 'assets/menu/latte.jpg',
   };
 

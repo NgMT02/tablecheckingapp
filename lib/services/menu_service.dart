@@ -82,7 +82,7 @@ class MenuService {
         category: 'Burgers',
         price: 8.90,
         isPopular: true,
-        assetPath: 'assets/menu/cheese burger.jpg',
+        assetPath: 'assets/menu/cheese_burger.jpg',
       ),
       MenuItem(
         id: 'burger-2',
@@ -90,7 +90,7 @@ class MenuService {
         description: 'Grilled chicken, tomato, and house sauce.',
         category: 'Burgers',
         price: 8.40,
-        assetPath: 'assets/menu/chicken burger.jpg',
+        assetPath: 'assets/menu/chicken_burger.jpg',
       ),
       MenuItem(
         id: 'pizza-1',
@@ -99,7 +99,7 @@ class MenuService {
         category: 'Pizza',
         price: 11.50,
         isPopular: true,
-        assetPath: 'assets/menu/pepperoni pizza.jpg',
+        assetPath: 'assets/menu/pepperoni_pizza.jpg',
       ),
       
       MenuItem(
