@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'auth_screen.dart';
-import 'enterphone.dart';
+import 'screens/menu_screen.dart';
+import 'screens/welcome_screen.dart';
 import 'services/auth_service.dart';
 
 class AuthGate extends StatelessWidget {
@@ -19,9 +19,9 @@ class AuthGate extends StatelessWidget {
     }
 
     if (!auth.isAuthenticated) {
-      return const AuthScreen();
+      return const WelcomeScreen();
     }
 
-    return const EnterPhoneScreen();
+    return const MenuScreen();
   }
 }

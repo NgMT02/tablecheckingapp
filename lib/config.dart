@@ -5,3 +5,5 @@ const String cloudRunBaseUrl = String.fromEnvironment(
   'CLOUD_RUN_BASE_URL',
   defaultValue: 'https://tablecheckingapp-52196131424.asia-southeast2.run.app',
 );
+
+const double defaultTaxRate = 0.06;

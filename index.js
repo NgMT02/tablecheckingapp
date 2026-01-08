@@ -6,8 +6,6 @@ const fetch = globalThis.fetch
   ? globalThis.fetch
   : (...args) =>
       import('node-fetch').then(({ default: fetchFn }) => fetchFn(...args));
-const fs = require('fs');
-
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.applicationDefault(),
@@ -16,7 +14,9 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
-const tables = db.collection('phoneTable');
+const menuItems = db.collection('menuItems');
+const orders = db.collection('orders');
+const counters = db.collection('counters');
 
 const apiKey =
     process.env.FIREBASE_WEB_API_KEY;
@@ -87,6 +87,58 @@ const clearSessionCookie = (res) => {
   res.setHeader('Set-Cookie', [buildCookie('session', '', 0)]);
 };
 
+const toBase64String = (value) => {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+  if (value instanceof admin.firestore.Blob) {
+    return value.toBase64();
+  }
+  if (Buffer.isBuffer(value)) {
+    return value.toString('base64');
+  }
+  return null;
+};
+
+const getNextTicketNumber = async () => {
+  const counterRef = counters.doc('orderQueue');
+  const nextValue = await db.runTransaction(async (tx) => {
+    const snapshot = await tx.get(counterRef);
+    const current = snapshot.exists ? snapshot.data().value || 0 : 0;
+    const next = Number(current) + 1;
+    tx.set(counterRef, { value: next }, { merge: true });
+    return next;
+  });
+  return nextValue;
+};
+
+const getNowServing = async () => {
+  const doc = await counters.doc('nowServing').get();
+  if (!doc.exists) return 1;
+  const data = doc.data() || {};
+  const value = Number(data.value || 1);
+  return value > 0 ? value : 1;
+};
+
+const setNowServing = async (value) => {
+  await counters.doc('nowServing').set({ value: Number(value) || 0 }, { merge: true });
+  return Number(value) || 0;
+};
+
+const incrementNowServing = async () => {
+  const counterRef = counters.doc('nowServing');
+  const nextValue = await db.runTransaction(async (tx) => {
+    const snapshot = await tx.get(counterRef);
+    const current = snapshot.exists ? snapshot.data().value || 0 : 0;
+    const next = Number(current) + 1;
+    tx.set(counterRef, { value: next }, { merge: true });
+    return next;
+  });
+  return nextValue;
+};
+
 functions.http('helloHttp', async (req, res) => {
   const origin = pickOrigin(req);
   if (allowAnyOrigin && origin) {
@@ -94,7 +146,7 @@ functions.http('helloHttp', async (req, res) => {
   }
   res.set('Access-Control-Allow-Credentials', 'true');
   res.set('Access-Control-Allow-Headers', 'Content-Type,x-admin-secret');
-  res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS');
+  res.set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
 
   if (req.method === 'OPTIONS') return res.status(204).send('');
 
@@ -199,77 +251,123 @@ functions.http('helloHttp', async (req, res) => {
     return res.status(204).send('');
   }
 
-  // Lookup by phone (requires ID token)
-  if (
-    req.method === 'POST' &&
-    (req.path === '/table' || req.path === '/tables/lookup')
-  ) {
+  // Menu list
+  if (req.method === 'GET' && req.path === '/menu') {
+    try {
+      const snapshot = await menuItems.get();
+      const data = snapshot.docs
+        .map((doc) => {
+          const raw = doc.data() || {};
+          const imageBase64 = toBase64String(
+            raw.imageBase64 || raw.image_base64 || raw.image,
+          );
+          const payload = {
+            id: doc.id,
+            ...raw,
+          };
+          if (imageBase64) {
+            payload.imageBase64 = imageBase64;
+            delete payload.image;
+            delete payload.image_base64;
+          }
+          return payload;
+        })
+        .sort((a, b) => {
+          const catA = (a.category || '').toString();
+          const catB = (b.category || '').toString();
+          if (catA !== catB) return catA.localeCompare(catB);
+          const nameA = (a.name || '').toString();
+          const nameB = (b.name || '').toString();
+          return nameA.localeCompare(nameB);
+        });
+      return res.json({ items: data });
+    } catch (err) {
+      console.error('Menu fetch failed', err);
+      return res.status(500).json({ error: 'Unable to load menu' });
+    }
+  }
+
+  // Now serving (public)
+  if (req.method === 'GET' && req.path === '/now-serving') {
+    try {
+      const value = await getNowServing();
+      return res.json({ value });
+    } catch (err) {
+      console.error('Now serving fetch failed', err);
+      return res.status(500).json({ error: 'Unable to load now serving' });
+    }
+  }
+
+  // Set now serving (staff)
+  if (req.method === 'POST' && req.path === '/now-serving') {
     return requireSession(req, res, async () => {
       try {
-        const phone =
-          (req.body.phoneNumber ||
-            req.body.phone ||
-            req.body.phone_no ||
-            '') +
-          '';
-        const trimmed = phone.trim();
-        if (!trimmed) {
-          return res.status(400).json({ error: 'phoneNumber is required' });
+        const value = Number(req.body.value);
+        if (!Number.isFinite(value)) {
+          return res.status(400).json({ error: 'value is required' });
         }
-        const doc = await tables.doc(trimmed).get();
-        if (!doc.exists) {
-          return res
-            .status(404)
-            .json({ error: 'No table found for that phone number.' });
-        }
-        const data = doc.data();
-        return res.json({
-          phoneNumber: trimmed,
-          tableNumber: data.tableNumber,
-        });
+        const updated = await setNowServing(value);
+        return res.json({ value: updated });
       } catch (err) {
-        console.error('Lookup failed', err);
-        return res.status(500).json({ error: 'Lookup failed' });
+        console.error('Now serving update failed', err);
+        return res.status(500).json({ error: 'Unable to update now serving' });
       }
     });
   }
 
-  // Upsert table (requires ID token)
-  if (req.method === 'PUT' && req.path === '/table') {
+  // Advance now serving by 1 (staff)
+  if (req.method === 'POST' && req.path === '/now-serving/next') {
     return requireSession(req, res, async () => {
       try {
-        const phone =
-          (req.body.phoneNumber ||
-            req.body.phone ||
-            req.body.phone_no ||
-            '') +
-          '';
-        const tableNumber =
-          (req.body.tableNumber ||
-            req.body.table ||
-            req.body.table_no ||
-            '') +
-          '';
-        const trimmedPhone = phone.trim();
-        const trimmedTable = tableNumber.trim();
-        if (!trimmedPhone || !trimmedTable) {
-          return res
-            .status(400)
-            .json({ error: 'phoneNumber and tableNumber are required' });
+        const value = await incrementNowServing();
+        return res.json({ value });
+      } catch (err) {
+        console.error('Now serving increment failed', err);
+        return res.status(500).json({ error: 'Unable to advance now serving' });
+      }
+    });
+  }
+
+  // Create order (requires session)
+  if (req.method === 'POST' && req.path === '/orders') {
+    return requireSession(req, res, async () => {
+      try {
+        const items = Array.isArray(req.body.items) ? req.body.items : [];
+        if (!items.length) {
+          return res.status(400).json({ error: 'items are required' });
         }
-        await tables.doc(trimmedPhone).set({
-          phoneNumber: trimmedPhone,
-          tableNumber: trimmedTable,
-          updatedBy: req.user.uid,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+
+        const subtotal = Number(req.body.subtotal || 0);
+        const tax = Number(req.body.tax || 0);
+        const total = Number(req.body.total || 0);
+        const note = (req.body.note || '').toString();
+
+        const ticketNumber = await getNextTicketNumber();
+        const createdAt = admin.firestore.FieldValue.serverTimestamp();
+        const docRef = await orders.add({
+          items,
+          subtotal,
+          tax,
+          total,
+          note,
+          ticketNumber: ticketNumber.toString(),
+          status: 'placed',
+          createdAt,
+          userId: req.user.uid,
         });
-        return res.json({
-          phoneNumber: trimmedPhone,
-          tableNumber: trimmedTable,
+        await setNowServing(ticketNumber);
+
+        return res.status(201).json({
+          orderId: docRef.id,
+          ticketNumber: ticketNumber.toString(),
+          subtotal,
+          tax,
+          total,
+          createdAt: new Date().toISOString(),
         });
       } catch (err) {
-        console.error('Upsert failed', err);
-        return res.status(500).json({ error: 'Unable to save record' });
+        console.error('Order creation failed', err);
+        return res.status(500).json({ error: 'Unable to place order' });
       }
     });
   }
