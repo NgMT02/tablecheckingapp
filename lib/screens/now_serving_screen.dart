@@ -53,6 +53,12 @@ class _NowServingScreenState extends State<NowServingScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Card(
+                      color: const Color(0xFFFFF8F2),
+                      elevation: 6,
+                      shadowColor: Colors.black.withOpacity(0.08),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(26),
+                      ),
                       child: Padding(
                         padding: const EdgeInsets.all(20),
                         child: Column(

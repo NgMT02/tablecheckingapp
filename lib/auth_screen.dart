@@ -133,6 +133,12 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           const SizedBox(height: 18),
                           Card(
+                            color: const Color(0xFFFFF8F2),
+                            elevation: 6,
+                            shadowColor: Colors.black.withOpacity(0.08),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(28),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 22,

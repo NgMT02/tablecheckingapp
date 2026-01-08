@@ -110,6 +110,12 @@ class _MenuScreenState extends State<MenuScreen> {
     final isReady = current != null && ticket != null && current >= ticket;
 
     return Card(
+      color: const Color(0xFFFFF8F2),
+      elevation: 6,
+      shadowColor: Colors.black.withOpacity(0.08),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(26),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -280,6 +286,12 @@ class _MenuScreenState extends State<MenuScreen> {
                         ...entry.value.map(
                           (item) => Card(
                             margin: const EdgeInsets.only(bottom: 16),
+                            color: const Color(0xFFFFF8F2),
+                            elevation: 6,
+                            shadowColor: Colors.black.withOpacity(0.08),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(26),
+                            ),
                             child: Padding(
                               padding: const EdgeInsets.all(18),
                               child: Column(

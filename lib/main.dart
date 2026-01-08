@@ -77,14 +77,6 @@ class MyApp extends StatelessWidget {
           ),
           scaffoldBackgroundColor: const Color(0xFFFFF6EE),
           textTheme: _buildTextTheme(),
-          cardTheme: CardTheme(
-            color: const Color(0xFFFFF8F2),
-            elevation: 6,
-            shadowColor: Colors.black.withOpacity(0.08),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(28),
-            ),
-          ),
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
             fillColor: const Color(0xFFFFFDFC),
